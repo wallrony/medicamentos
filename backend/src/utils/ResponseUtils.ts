@@ -8,6 +8,11 @@ export const errorIdIsMissing = {
   message: 'É necessário um id!',
 };
 
+export const errorQueryIdIsMissing = {
+  result: 'fail',
+  message: 'É necessário um query id!',
+}
+
 export const errorUpdatingData = {
   result: 'fail',
   message: 'Ocorreu algum erro interno ao atualizar as informações. Por favor, tente novamente mais tarde.',
