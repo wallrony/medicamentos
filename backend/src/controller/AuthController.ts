@@ -23,13 +23,13 @@ class AuthController {
       return response.status(400).json(errorAuth);
     }
 
-    const { token } = result[0] as User;
+    const userData = result[0] as User;
 
-    return response.status(200).json(successAuthenticated(token));
+    return response.status(200).json(successAuthenticated(userData));
   }
 
   async verifyAuth(request: Request, response: Response, next: NextFunction) {
-    if(request.path === '/login') {
+    if(request.path === '/login' || (request.path === '/users' && request.method === 'POST')) {
       return next();
     }
   

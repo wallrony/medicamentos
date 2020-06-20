@@ -1,3 +1,5 @@
+import { User } from "../interfaces/User";
+
 export const errorEmptyValue = {
   result: 'fail',
   message: 'Nenhum valor pode ser vazio!',
@@ -63,10 +65,14 @@ export const successDataDeleted = {
   message: 'Informação deletada com sucesso!',
 }
 
-export const successAuthenticated = (token: String) => {
+export const successAuthenticated = (userData: User) => {
   const auth = {
     result: 'success',
-    authToken: token
+    user: {
+      authToken: userData['token'],
+      name: userData['name'],
+      id: userData['id']
+    }
   };
 
   return auth;
