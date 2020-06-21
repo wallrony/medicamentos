@@ -12,7 +12,6 @@ router.all('*', authController.verifyAuth);
 
 router.get('/medicamentos', medController.index);
 router.get('/medicamentos/:id', medController.show);
-router.get('/users', userController.index);
 router.get('/users/:id', userController.show);
 
 router.post('/medicamentos', medController.add);

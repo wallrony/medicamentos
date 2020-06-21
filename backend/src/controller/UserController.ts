@@ -13,12 +13,6 @@ import {
 } from '../utils/ResponseUtils';
 
 class UserController {
-  async index(request: Request, response: Response) {
-    const result = await connection('users').select('*');
-
-    return response.status(200).json(result);
-  }
-
   async add(request: Request, response: Response) {
     const { name, user, pswd } = request.body;
 
@@ -49,8 +43,10 @@ class UserController {
     }
 
     const result = await connection('users')
-      .select('*')
+      .select('id', 'name', 'user')
       .where('id', '=', Number(id));
+
+    if(result.length) delete result[0]['token'];
 
     return response.status(200).json(!result.length ? {} : result[0]);
   }
