@@ -51,16 +51,20 @@ class UserController {
     return response.status(200).json(!result.length ? {} : result[0]);
   }
 
-  async edit(request: Request, response: Response) {
+  async update(request: Request, response: Response) {
     const { name, user, pswd } = request.body;
+    const { id } = request.params;
 
-    if(!String(name).length || !String(user).length || !String(pswd).length) {
+    if(!name || !user || !pswd || !String(name).length || !String(user).length || !String(pswd).length || String(id).length) {
       return response.status(400).json(errorEmptyValue)
+    }
+    else if(!id) {
+      return response.status(400).json(errorIdIsMissing);
     }
 
     const result = await connection('users').update({
       name, user, pswd
-    });
+    }).where('id', '=', id);
 
     if(result) {
       return response.status(200).json(successDataUpdated);

@@ -11,7 +11,8 @@ class UserApi {
 
     try {
       response = await http.get("${apiUrl()}/users/$id", headers: getHeaders(token: token));
-      
+
+
     }
     catch(error) {
       print(error);

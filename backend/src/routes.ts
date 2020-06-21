@@ -18,8 +18,8 @@ router.post('/medicamentos', medController.add);
 router.post('/users', userController.add);
 router.post('/login', authController.login);
 
-router.put('/medicamentos', medController.update);
-router.put('/users', userController.edit);
+router.put('/medicamentos/:id', medController.update);
+router.put('/users/:id', userController.update);
 
 router.delete('/medicamentos/:id', medController.delete);
 router.delete('/users/:id', userController.delete);

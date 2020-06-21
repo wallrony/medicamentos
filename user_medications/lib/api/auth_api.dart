@@ -20,14 +20,25 @@ class AuthApi {
         'pswd': pswd
       }), headers: getHeaders());
 
-      final mapResponse = Map<String, dynamic>.from(json.decode(utf8.decode(response.bodyBytes)));
+      final mapResponse = responseToMap(response);
+
+      if(mapResponse['message'] == 'fail') {
+        throw Exception("O nome de usuário ou senha estão incorretos!");
+      }
+
       mapResponse['user']['user'] = user;
 
       userData = User.fromJson(mapResponse['user']);
     }
     catch(error) {
       print(error);
-      userData = unexpectedErrorText();
+
+      if(error.toString().contains("usuário ou senha")) {
+        userData = error;
+      }
+      else {
+        userData = unexpectedErrorText();
+      }
     }
 
     return userData;
@@ -49,7 +60,7 @@ class AuthApi {
         headers: getHeaders()
       );
 
-      final mapResponse = Map<String, dynamic>.from(json.decode(utf8.decode(response.bodyBytes)));
+      final mapResponse = responseToMap(response);
 
       if(mapResponse['result'] == 'success') {
         response = true;
