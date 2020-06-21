@@ -52,7 +52,7 @@ class UserController {
       .select('*')
       .where('id', '=', Number(id));
 
-    return response.status(200).json(result);
+    return response.status(200).json(!result.length ? {} : result[0]);
   }
 
   async edit(request: Request, response: Response) {
