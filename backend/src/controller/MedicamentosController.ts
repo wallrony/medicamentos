@@ -6,7 +6,7 @@ class MedicamentosController {
   async index(request: Request, response: Response) {
     const { user_id } = request.query;
 
-    if(!String(user_id).length) {
+    if (!String(user_id).length) {
       return response.status(400).json(errorQueryIdIsMissing);
     }
 
@@ -20,7 +20,7 @@ class MedicamentosController {
   async add(request: Request, response: Response) {
     const { name, description, value, user_id } = request.body;
 
-    if(!name || !description || !value || !user_id ||
+    if (!name || !description || !value || !user_id ||
       !String(name).length || !String(description).length ||
       !String(value).length || !String(user_id).length
     ) {
@@ -37,11 +37,11 @@ class MedicamentosController {
   async show(request: Request, response: Response) {
     const { id } = request.params;
     const { user_id } = request.query;
-    
-    if(!String(id).length) {
+
+    if (!String(id).length) {
       return response.status(400).json(errorIdIsMissing);
     }
-    else if(!String(user_id).length) {
+    else if (!String(user_id).length) {
       return response.status(400).json(errorQueryIdIsMissing);
     }
 
@@ -50,13 +50,14 @@ class MedicamentosController {
       .where('id', '=', id)
       .andWhere('user_id', '=', Number(user_id));
 
-    return response.status(200).json(result);
+    return response.status(200).json(!result.length ? {} : result[0]);
   }
 
   async update(request: Request, response: Response) {
-    const { id, name, description, value } = request.body;
+    const { name, description, value } = request.body;
+    const { id } = request.params;
 
-    if(!id || !name || !description || !value ||
+    if (!id || !name || !description || !value ||
       !String(id).length || !String(name).length ||
       !String(description).length || !String(value).length
     ) {
@@ -74,14 +75,14 @@ class MedicamentosController {
   async delete(request: Request, response: Response) {
     const { id } = request.params;
 
-    if(!String(id).length) {
+    if (!String(id).length) {
       return response.status(400).json(errorIdIsMissing);
     }
 
     const result = await connection('medicamentos')
       .delete()
       .where('id', '=', id);
-    
+
     return response.status(200).json(successDataDeleted);
   }
 }
