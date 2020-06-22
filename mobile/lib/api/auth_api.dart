@@ -1,12 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:http/http.dart' as http;
+import 'package:usermedications/api/base_api.dart';
 import 'package:usermedications/model/user.dart';
 import 'package:usermedications/utils/utils.dart';
 
 // Classe responsável por fazer conexão aos métodos de autenticação da api
-class AuthApi {
+class AuthApi extends BaseApi {
   login(String user, String pswd) async {
     if(!(await isOnline())) {
       return "offline";
@@ -15,15 +14,15 @@ class AuthApi {
     var response, userData;
 
     try {
-      response = await http.post('${apiUrl()}/login', body: json.encode({
+      response = await http.post('$apiUrl/login', body: json.encode({
         'user': user,
         'pswd': pswd
       }), headers: getHeaders());
 
       final mapResponse = responseToMap(response);
 
-      if(mapResponse['message'] == 'fail') {
-        throw Exception("O nome de usuário ou senha estão incorretos!");
+      if(mapResponse['result'] == 'fail') {
+        throw Exception("incorrectCredentials");
       }
 
       mapResponse['user']['user'] = user;
@@ -31,23 +30,17 @@ class AuthApi {
       userData = User.fromJson(mapResponse['user']);
     }
     catch(error) {
-      print(error);
-
-      if(error.toString().contains("usuário ou senha")) {
-        userData = error;
-      }
-      else {
+      if(error.message == 'incorrectCredentials')
+        userData = 'O nome de usuário ou senha estão incorretos!';
+      else
         userData = unexpectedErrorText();
-      }
     }
 
     return userData;
   }
 
   register(String name, String user, String pswd) async {
-    if(!(await isOnline())) {
-      return "offline";
-    }
+    if(!(await isOnline())) return "offline";
 
     var response, body = {
       'name': name,
@@ -56,15 +49,15 @@ class AuthApi {
     };
 
     try {
-      response = await http.post("${apiUrl()}/users", body: body,
+      response = await http.post("$apiUrl/users", body: body,
         headers: getHeaders()
       );
 
       final mapResponse = responseToMap(response);
 
-      if(mapResponse['result'] == 'success') {
+      if(mapResponse['result'] == 'success')
         response = true;
-      }
+      else response = false;
     }
     catch(error) {
       response = unexpectedErrorText();

@@ -24,7 +24,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -81,63 +80,70 @@ class _LoginPageState extends State<LoginPage> {
                 isBold: true,
               )),
           FadeAnimation(
-              1.4,
-              CustomText(
-                text: "Entre e usufrua de nossos serviços!",
-                color: Colors.grey[500],
-                fontSize: 12,
-              )),
+            1.4,
+            CustomText(
+              text: "Entre e usufrua de nossos serviços!",
+              color: Colors.grey[500],
+              fontSize: 12,
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget makeLoginForm() {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      Container(
-        margin: EdgeInsets.symmetric(horizontal: 25),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromRGBO(50, 205, 100, .6),
-              blurRadius: 20,
-              offset: Offset(2, 10),
-            )
-          ],
-        ),
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              FadeAnimation(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 25),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Color.fromRGBO(50, 205, 100, .6),
+                blurRadius: 20,
+                offset: Offset(2, 10),
+              )
+            ],
+          ),
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                FadeAnimation(
                   1.6,
                   makeInput(
                     label: "Nome de Usuário",
                     controller: userController,
                     validateFun: validateUser,
-                  )),
-              FadeAnimation(
+                  ),
+                ),
+                FadeAnimation(
                   1.8,
                   makeInput(
                     label: "Senha",
                     obscureText: true,
                     controller: pswdController,
                     validateFun: validatePswd,
-                  )),
-              FadeAnimation(1.8, GreyLine()),
-              FadeAnimation(
+                  ),
+                ),
+                FadeAnimation(1.8, GreyLine()),
+                FadeAnimation(
                   2,
                   FormButton(
                     label: "Entrar",
                     onTap: login,
-                  )),
-            ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 
   void login() async {
@@ -147,9 +153,34 @@ class _LoginPageState extends State<LoginPage> {
       String user = userController.text;
       String pswd = pswdController.text;
 
-      User result = await Facade().login(user, pswd);
+      var result = await Facade().login(user, pswd);
 
       closeDialog(context);
+
+      if (result.runtimeType == String) {
+        if (result == 'offline') {
+          showOfflineDialog(context);
+        } else {
+          showMessageDialog(context, "Há algo de errado...", result, [
+            makeActionObject(
+              'Ok',
+              true,
+              () => closeDialog(context),
+              Icon(Icons.close),
+            ),
+          ]);
+        }
+      } else {
+        showMessageDialog(context, "Sucesso!", 'Login feito com sucesso!', [
+          makeActionObject(
+            'Ok',
+            true,
+            () => closeDialog(context),
+            Icon(Icons.close),
+          ),
+        ]);
+        // redirect to homepage with changenotifier user provider
+      }
     }
   }
 
