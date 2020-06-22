@@ -29,12 +29,6 @@ class Facade {
   /// USER API OPERATIONS
   showUser(String token, int id) async => await _userApi.show(token, id);
 
-  addUser(
-    String name,
-    String user,
-    String pswd,
-  ) async => await _userApi.add(name, user, pswd);
-
   updateUser(
     String token,
     int id,

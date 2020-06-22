@@ -23,7 +23,7 @@ class UserController {
       return response.status(400).json(errorEmptyValue);
     }
 
-    if(await this.usernameExists(user))
+    if(await UserController.usernameExists(user))
       return response.status(400).json(errorUsernameAlreadyExists);
 
     const token = String(generateToken()).split('.')[2];
@@ -66,7 +66,7 @@ class UserController {
       return response.status(400).json(errorIdIsMissing);
     }
 
-    if(await this.usernameExists(user))
+    if(await UserController.usernameExists(user))
       return response.status(400).json(errorUsernameAlreadyExists);
 
     const result = await connection('users').update({
@@ -98,14 +98,14 @@ class UserController {
     }
   }
 
-  private async usernameExists(userName: String) {
+  private static async usernameExists(userName: String) {
     let exists = false;
 
     const result = await connection('users')
       .select('user')
       .where('user', '=', userName);
 
-    if(!result.length) {
+    if(result.length) {
       exists = true;
     }
 

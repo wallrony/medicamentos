@@ -46,21 +46,28 @@ class AuthApi extends BaseApi {
       'name': name,
       'user': user,
       'pswd': pswd
-    };
+    }, mapResponse;
 
     try {
-      response = await http.post("$apiUrl/users", body: body,
+      response = await http.post("$apiUrl/users", body: json.encode(body),
         headers: getHeaders()
       );
 
-      final mapResponse = responseToMap(response);
+      print("making responseMap");
 
-      if(mapResponse['result'] == 'success')
-        response = true;
-      else response = false;
+      mapResponse = responseToMap(response);
+
+      if(mapResponse['result'] == 'success') response = true;
+      else if (mapResponse['result'] == 'fail')
+        response = throw Exception("customError");
     }
     catch(error) {
-      response = unexpectedErrorText();
+      print(error);
+
+      if(error.message.toString() == "customError")
+        response = mapResponse['message'];
+      else
+        response = unexpectedErrorText();
     }
 
     return response;

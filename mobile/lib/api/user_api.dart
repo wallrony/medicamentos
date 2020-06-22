@@ -30,36 +30,6 @@ class UserApi extends BaseApi {
     return response;
   }
 
-  add(name, user, pswd) async {
-    if (!(await isOnline())) return 'offline';
-
-    var response, body = {'name': name, 'user': user, 'pswd': pswd};
-
-    try {
-      response = await http.post(
-        '$apiUrl/users',
-        body: body,
-        headers: getHeaders(),
-      );
-
-      final Map<String, dynamic> mapResponse = responseToMap(response);
-
-      if (mapResponse['result'] == 'fail')
-        throw Exception(mapResponse['message']);
-      else
-        response = true;
-    } catch (error) {
-      print(error);
-
-      if (error.toString().contains("Exception"))
-        response = error;
-      else
-        response = unexpectedErrorText();
-    }
-
-    return response;
-  }
-
   update(token, id, name, user, pswd) async {
     if (!(await isOnline())) return 'offline';
 
@@ -79,8 +49,6 @@ class UserApi extends BaseApi {
       else
         response = true;
     } catch (error) {
-      print(error);
-
       if (error.toString().contains("Exception"))
         response = error;
       else

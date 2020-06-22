@@ -201,7 +201,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ],
           );
-      } else if (result.runtimeType == bool && result == true)
+      } else if (result.runtimeType == bool && result == true) 
         showMessageDialog(
           context,
           'Sucesso!',
@@ -210,12 +210,22 @@ class _RegisterPageState extends State<RegisterPage> {
             makeActionObject(
               'Ok',
               true,
-              () => closeDialog(context),
+              () {
+                clearFields();
+                closeDialog(context);
+              },
               Icon(Icons.close),
             ),
           ],
         );
     }
+  }
+
+  clearFields() {
+    nameController.text = '';
+    userController.text = '';
+    pswdController.text = '';
+    confirmPswdController.text = '';
   }
 
   String validateUser(String text) {

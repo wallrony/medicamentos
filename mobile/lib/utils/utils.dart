@@ -81,7 +81,8 @@ showMessageDialog(BuildContext context, String title, String description,
               CustomText(
                 text: description,
                 color: Colors.black87,
-                fontSize: 16,
+                fontSize: 15,
+                textAlign: TextAlign.left,
               ),
               SizedBox(height: 30),
               ...actions.map(
