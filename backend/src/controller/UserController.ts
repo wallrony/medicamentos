@@ -9,7 +9,8 @@ import {
   successDataUpdated,
   errorUpdatingData,
   errorDeletingData,
-  successDataDeleted
+  successDataDeleted,
+  errorUsernameAlreadyExists
 } from '../utils/ResponseUtils';
 
 class UserController {
@@ -21,6 +22,9 @@ class UserController {
     ) {
       return response.status(400).json(errorEmptyValue);
     }
+
+    if(await this.usernameExists(user))
+      return response.status(400).json(errorUsernameAlreadyExists);
 
     const token = String(generateToken()).split('.')[2];
 
@@ -62,6 +66,9 @@ class UserController {
       return response.status(400).json(errorIdIsMissing);
     }
 
+    if(await this.usernameExists(user))
+      return response.status(400).json(errorUsernameAlreadyExists);
+
     const result = await connection('users').update({
       name, user, pswd
     }).where('id', '=', id);
@@ -89,6 +96,20 @@ class UserController {
     else {
       return response.status(500).json(errorDeletingData);
     }
+  }
+
+  private async usernameExists(userName: String) {
+    let exists = false;
+
+    const result = await connection('users')
+      .select('user')
+      .where('user', '=', userName);
+
+    if(!result.length) {
+      exists = true;
+    }
+
+    return exists;
   }
 }
 

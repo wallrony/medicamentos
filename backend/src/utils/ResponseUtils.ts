@@ -50,6 +50,11 @@ export const errorTokenRequired = {
   message: 'O cabeçalho de autenticação é necessário!',
 };
 
+export const errorUsernameAlreadyExists = {
+  result: 'fail',
+  message: 'O nome de usuário fornecido já existe. Escolha outro!',
+}
+
 export const successDataUpdated = {
   result: 'success',
   message: 'Informação atualizada com sucesso!',
