@@ -75,85 +75,98 @@ class _RegisterPageState extends State<RegisterPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FadeAnimation(
-              1,
-              CustomText(
-                text: "Cadastre-se",
-                fontSize: 42,
-                isBold: true,
-              )),
+            1,
+            CustomText(
+              text: "Cadastre-se",
+              fontSize: 42,
+              isBold: true,
+            ),
+          ),
           FadeAnimation(
-              1.2,
-              CustomText(
-                text: "E possa cadastrar sua lista de medicamentos pessoal!",
-                fontSize: 13,
-                color: Colors.grey[500],
-              )),
+            1.2,
+            CustomText(
+              text: "E possa cadastrar sua lista de medicamentos pessoal!",
+              fontSize: 13,
+              color: Colors.grey[500],
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget makeLoginForm() {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      Container(
-        margin: EdgeInsets.symmetric(horizontal: 25),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromRGBO(50, 205, 100, .6),
-              blurRadius: 20,
-              offset: Offset(2, 10),
-            )
-          ],
-        ),
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              FadeAnimation(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 25),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Color.fromRGBO(50, 205, 100, .6),
+                blurRadius: 20,
+                offset: Offset(2, 10),
+              )
+            ],
+          ),
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                FadeAnimation(
                   1.4,
                   makeInput(
                     label: "Nome Completo",
                     controller: nameController,
                     validateFun: validateName,
-                  )),
-              FadeAnimation(
+                  ),
+                ),
+                FadeAnimation(
                   1.6,
                   makeInput(
                     label: "Nome de Usuário",
                     controller: userController,
                     validateFun: validateUser,
-                  )),
-              FadeAnimation(
+                  ),
+                ),
+                FadeAnimation(
                   1.8,
                   makeInput(
                     label: "Senha",
                     obscureText: true,
                     controller: pswdController,
                     validateFun: validatePswd,
-                  )),
-              FadeAnimation(
+                  ),
+                ),
+                FadeAnimation(
                   2,
                   makeInput(
                     label: "Confirmação de Senha",
                     obscureText: true,
                     controller: confirmPswdController,
                     validateFun: validateConfirmPswd,
-                  )),
-              FadeAnimation(2, GreyLine()),
-              FadeAnimation(
+                  ),
+                ),
+                FadeAnimation(
+                  2,
+                  GreyLine(),
+                ),
+                FadeAnimation(
                   2.2,
                   FormButton(
                     label: 'Criar Conta',
                     onTap: register,
-                  )),
-            ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 
   Widget makeInput({
@@ -201,7 +214,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ],
           );
-      } else if (result.runtimeType == bool && result == true) 
+      } else if (result.runtimeType == bool && result == true)
         showMessageDialog(
           context,
           'Sucesso!',

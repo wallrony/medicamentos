@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:usermedications/components/custom_button.dart';
 import 'package:usermedications/components/custom_text.dart';
 
@@ -174,4 +175,12 @@ makeActionObject(
 
 closeDialog(BuildContext context) {
   Navigator.of(context).pop();
+}
+
+buildPageWithProvider<T extends ChangeNotifier>(
+    {@required T bloc, @required Widget page}) {
+  return ChangeNotifierProvider.value(
+    value: bloc,
+    child: page,
+  );
 }

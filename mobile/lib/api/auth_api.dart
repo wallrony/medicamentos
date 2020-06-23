@@ -53,8 +53,6 @@ class AuthApi extends BaseApi {
         headers: getHeaders()
       );
 
-      print("making responseMap");
-
       mapResponse = responseToMap(response);
 
       if(mapResponse['result'] == 'success') response = true;
@@ -62,8 +60,6 @@ class AuthApi extends BaseApi {
         response = throw Exception("customError");
     }
     catch(error) {
-      print(error);
-
       if(error.message.toString() == "customError")
         response = mapResponse['message'];
       else

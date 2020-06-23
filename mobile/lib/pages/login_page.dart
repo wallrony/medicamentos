@@ -8,7 +8,9 @@ import 'package:usermedications/components/grey_line.dart';
 import 'package:usermedications/components/medkit_icon.dart';
 import 'package:usermedications/controller/facade.dart';
 import 'package:usermedications/model/user.dart';
+import 'package:usermedications/pages/home_page.dart';
 import 'package:usermedications/pages/register_page.dart';
+import 'package:usermedications/utils/nav_utils.dart';
 import 'package:usermedications/utils/utils.dart';
 
 class LoginPage extends StatefulWidget {
@@ -37,7 +39,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
@@ -73,12 +74,13 @@ class _LoginPageState extends State<LoginPage> {
           FadeAnimation(1, MedkitIcon(iconSize: 96)),
           SizedBox(height: 40),
           FadeAnimation(
-              1.2,
-              CustomText(
-                text: "Login",
-                fontSize: 54,
-                isBold: true,
-              )),
+            1.2,
+            CustomText(
+              text: "Login",
+              fontSize: 54,
+              isBold: true,
+            ),
+          ),
           FadeAnimation(
             1.4,
             CustomText(
@@ -161,25 +163,22 @@ class _LoginPageState extends State<LoginPage> {
         if (result == 'offline') {
           showOfflineDialog(context);
         } else {
-          showMessageDialog(context, "Há algo de errado...", result, [
-            makeActionObject(
-              'Ok',
-              true,
-              () => closeDialog(context),
-              Icon(Icons.close),
-            ),
-          ]);
+          showMessageDialog(
+            context,
+            "Há algo de errado...",
+            result,
+            [
+              makeActionObject(
+                'Ok',
+                true,
+                () => closeDialog(context),
+                Icon(Icons.close),
+              ),
+            ],
+          );
         }
       } else {
-        showMessageDialog(context, "Sucesso!", 'Login feito com sucesso!', [
-          makeActionObject(
-            'Ok',
-            true,
-            () => closeDialog(context),
-            Icon(Icons.close),
-          ),
-        ]);
-        // redirect to homepage with changenotifier user provider
+        NavUtils.push(context: context, page: HomePage(), replace: true);
       }
     }
   }

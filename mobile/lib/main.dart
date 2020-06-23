@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
         cursorColor: Colors.black,
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        scaffoldBackgroundColor: Colors.white,
       ),
       home: LoginPage(),
     );
