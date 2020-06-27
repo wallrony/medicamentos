@@ -11,6 +11,8 @@ class User {
   get pswd => _pswd;
   get id => _id;
 
+  set name(value) => _name = value;
+
   set pswd(value) => this._pswd = value;
 
   User({name, user, token, pswd, id}) {

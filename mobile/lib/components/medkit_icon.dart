@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
 class MedkitIcon extends StatelessWidget {
-  final iconSize;
+  final double iconSize;
+  final double opacity;
 
-  MedkitIcon({this.iconSize = 48});
+  MedkitIcon({this.iconSize = 48, this.opacity = .8});
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +21,8 @@ class MedkitIcon extends StatelessWidget {
       ),
       child: Icon(
         FontAwesome.medkit,
-        size: double.parse(iconSize.toString()),
-        color: Color.fromRGBO(50, 205, 100, .8),
+        size: iconSize,
+        color: Color.fromRGBO(50, 205, 100, opacity),
       )
     );
   }

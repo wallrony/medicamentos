@@ -7,13 +7,15 @@ class CustomFormField extends StatelessWidget {
   final Function validateFun;
   final bool withBorder;
   final bool obscureText;
+  final String type;
 
   CustomFormField({
     this.label = '',
     this.controller,
     this.validateFun,
-    this.withBorder,
-    this.obscureText,
+    this.withBorder = false,
+    this.obscureText = false,
+    this.type
   });
 
   @override
@@ -35,6 +37,7 @@ class CustomFormField extends StatelessWidget {
         obscureText: obscureText,
         validateFun: validateFun,
         controller: controller,
+        type: type
       ),
     );
   }

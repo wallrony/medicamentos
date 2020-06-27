@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:usermedications/animation/FadeAnimation.dart';
-import 'package:usermedications/components/custom_form_button.dart';
-import 'package:usermedications/components/custom_form_field.dart';
+import 'package:usermedications/components/custom_form.dart';
 import 'package:usermedications/components/custom_text.dart';
-import 'package:usermedications/components/grey_line.dart';
 import 'package:usermedications/controller/facade.dart';
+import 'package:usermedications/utils/form_utils.dart';
 import 'package:usermedications/utils/utils.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -44,26 +43,25 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar,
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Container(
+        appBar: appBar,
+        backgroundColor: Colors.white,
+        body: Container(
           height:
               MediaQuery.of(context).size.height - appBar.preferredSize.height,
           width: double.infinity,
-          child: Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                makeHeader(),
-                SizedBox(height: 25),
-                makeLoginForm(),
-              ],
-            ),
+          child: ListView(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  makeHeader(),
+                  SizedBox(height: 25),
+                  makeLoginForm(),
+                ],
+              ),
+            ],
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   Widget makeHeader() {
@@ -96,94 +94,37 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget makeLoginForm() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 25),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-              BoxShadow(
-                color: Color.fromRGBO(50, 205, 100, .6),
-                blurRadius: 20,
-                offset: Offset(2, 10),
-              )
-            ],
-          ),
-          child: Form(
-            key: formKey,
-            child: Column(
-              children: [
-                FadeAnimation(
-                  1.4,
-                  makeInput(
-                    label: "Nome Completo",
-                    controller: nameController,
-                    validateFun: validateName,
-                  ),
-                ),
-                FadeAnimation(
-                  1.6,
-                  makeInput(
-                    label: "Nome de Usuário",
-                    controller: userController,
-                    validateFun: validateUser,
-                  ),
-                ),
-                FadeAnimation(
-                  1.8,
-                  makeInput(
-                    label: "Senha",
-                    obscureText: true,
-                    controller: pswdController,
-                    validateFun: validatePswd,
-                  ),
-                ),
-                FadeAnimation(
-                  2,
-                  makeInput(
-                    label: "Confirmação de Senha",
-                    obscureText: true,
-                    controller: confirmPswdController,
-                    validateFun: validateConfirmPswd,
-                  ),
-                ),
-                FadeAnimation(
-                  2,
-                  GreyLine(),
-                ),
-                FadeAnimation(
-                  2.2,
-                  FormButton(
-                    label: 'Criar Conta',
-                    onTap: register,
-                  ),
-                ),
-              ],
-            ),
-          ),
+    return FadeAnimation(
+      1.4,
+      CustomForm(
+        this.formKey,
+        FormUtils.makeRegisterFormOptions(
+          getRegisterFormControllers(),
+          getRegisterFormValidators(),
         ),
-      ],
+        FormUtils.makeSubmitProp(
+          submitFunction: register,
+          submitLabel: 'Criar Conta',
+        ),
+      ),
     );
   }
 
-  Widget makeInput({
-    label,
-    obscureText = false,
-    validateFun,
-    withBorder = true,
-    controller,
-  }) {
-    return CustomFormField(
-      label: label,
-      obscureText: obscureText,
-      validateFun: validateFun,
-      withBorder: withBorder,
-      controller: controller,
-    );
+  List<Function> getRegisterFormValidators() {
+    List<Function> validators = FormUtils.registerValidators();
+
+    validators.removeLast();
+    validators.add((String text) => FormUtils.validateConfirmPswd(text, pswdController.text));
+
+    return validators;
   }
+
+  List<TextEditingController> getRegisterFormControllers() => [
+        nameController,
+        userController,
+        pswdController,
+        confirmPswdController,
+      ];
 
   register() async {
     if (formKey.currentState.validate()) {
@@ -239,49 +180,5 @@ class _RegisterPageState extends State<RegisterPage> {
     userController.text = '';
     pswdController.text = '';
     confirmPswdController.text = '';
-  }
-
-  String validateUser(String text) {
-    String result;
-
-    if (text.isEmpty) {
-      result = 'Você precisa inserir seu usuário!';
-    }
-
-    return result;
-  }
-
-  String validatePswd(String text) {
-    String result;
-
-    if (text.isEmpty) {
-      result = 'Você precisa inserir sua senha!';
-    } else if (text.length < 6) {
-      result = 'Senha inválida!';
-    }
-
-    return result;
-  }
-
-  String validateConfirmPswd(String text) {
-    String result;
-
-    if (text.isEmpty) {
-      result = 'Vocẽ precisa inserir sua senha novamente!';
-    } else if (text != pswdController.text) {
-      result = 'O que foi digitado não coincide com a sua senha...';
-    }
-
-    return result;
-  }
-
-  String validateName(String text) {
-    String result;
-
-    if (text.isEmpty) {
-      result = 'Você precisa inserir o seu nome!';
-    }
-
-    return result;
   }
 }

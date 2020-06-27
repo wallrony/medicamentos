@@ -15,9 +15,25 @@ abstract class BaseApi {
     return headers;
   }
 
-  responseToMap(response) {
-    final map =
-        Map<String, dynamic>.from(json.decode(utf8.decode(response.bodyBytes)));
+  responseToMap(response, { bool isList = false }) {
+    final jsonObject = json.decode(utf8.decode(response.bodyBytes));
+
+    var map;
+
+    print(jsonObject);
+
+    if(isList) {
+      if(jsonObject.isEmpty) return List<Map<String, dynamic>>();
+
+      map = List<Map<String, dynamic>>();
+
+      for(var medication in jsonObject) {
+        map.add(Map<String, dynamic>.from(medication));
+      }
+    }
+    else {
+      map = Map<String, dynamic>.from(jsonObject);
+    }
 
     return map;
   }

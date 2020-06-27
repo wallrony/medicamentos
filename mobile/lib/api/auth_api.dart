@@ -6,16 +6,16 @@ import 'package:usermedications/utils/utils.dart';
 
 // Classe responsável por fazer conexão aos métodos de autenticação da api
 class AuthApi extends BaseApi {
-  login(String user, String pswd) async {
+  login(String username, String pswd) async {
     if(!(await isOnline())) {
       return "offline";
     }
 
-    var response, userData;
+    var response, data;
 
     try {
       response = await http.post('$apiUrl/login', body: json.encode({
-        'user': user,
+        'user': username,
         'pswd': pswd
       }), headers: getHeaders());
 
@@ -25,18 +25,19 @@ class AuthApi extends BaseApi {
         throw Exception("incorrectCredentials");
       }
 
-      mapResponse['user']['user'] = user;
+      mapResponse['user']['user'] = username;
+      mapResponse['user']['name'] = treatName(mapResponse['user']['name']);
 
-      userData = User.fromJson(mapResponse['user']);
+      data = User.fromJson(mapResponse['user']);
     }
     catch(error) {
       if(error.message == 'incorrectCredentials')
-        userData = 'O nome de usuário ou senha estão incorretos!';
+        data = 'O nome de usuário ou senha estão incorretos!';
       else
-        userData = unexpectedErrorText();
+        data = unexpectedErrorText();
     }
 
-    return userData;
+    return data;
   }
 
   register(String name, String user, String pswd) async {

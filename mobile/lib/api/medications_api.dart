@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:usermedications/api/base_api.dart';
 import 'package:usermedications/model/medication.dart';
@@ -9,20 +11,29 @@ class MedicationApi extends BaseApi {
 
     var response;
 
+    print(token);
+
     try {
       response = await http.get(
         "$apiUrl/medicamentos?user_id=$userId",
         headers: getHeaders(token: token),
       );
 
-      List<Map<String, dynamic>> mapListResponse = responseToMap(response);
+      List<Map<String, dynamic>> mapListResponse = responseToMap(
+        response,
+        isList: true,
+      );
 
       response = List<Medication>();
+
+      print(mapListResponse);
 
       if (mapListResponse.isNotEmpty)
         for (final medication in mapListResponse)
           response.add(Medication.fromJson(medication));
     } catch (error) {
+      print(error);
+
       response = unexpectedErrorText();
     }
 
@@ -53,29 +64,29 @@ class MedicationApi extends BaseApi {
     return response;
   }
 
-  add(token, userId, name, description, value) async {
+  add(token, userId, Medication medication) async {
     if (!(await isOnline())) return 'offline';
 
-    var response,
-        body = {
-      'name': name,
-      'description': description,
-      'value': value,
-    };
+    var response, body = medication.toMap(withId: false);
+
+    print(json.encode(body));
 
     try {
       response = await http.post(
-        '$apiUrl/medications?user_id=$userId',
-        body: body,
+        '$apiUrl/medicamentos?user_id=$userId',
+        body: json.encode(body),
         headers: getHeaders(token: token),
       );
 
       Map<String, dynamic> mapResponse = responseToMap(response);
 
+      print(mapResponse);
+
       if (mapResponse['result'] == 'success')
         response = true;
       else if (mapResponse['result'] == 'fail') throw Exception("");
     } catch (error) {
+      print(error);
       response = unexpectedErrorText();
     }
 
@@ -124,8 +135,10 @@ class MedicationApi extends BaseApi {
 
       Map<String, dynamic> mapResponse = responseToMap(response);
 
-      if(mapResponse['result'] == 'success') response = true; 
-      else throw Exception("");
+      if (mapResponse['result'] == 'success')
+        response = true;
+      else
+        throw Exception("");
     } catch (error) {
       response = unexpectedErrorText();
     }

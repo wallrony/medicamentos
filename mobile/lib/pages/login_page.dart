@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:usermedications/animation/FadeAnimation.dart';
-import 'package:usermedications/components/custom_form_button.dart';
-import 'package:usermedications/components/custom_form_field.dart';
+import 'package:usermedications/components/custom_form.dart';
 import 'package:usermedications/components/custom_text.dart';
-import 'package:usermedications/components/grey_line.dart';
 import 'package:usermedications/components/medkit_icon.dart';
 import 'package:usermedications/controller/facade.dart';
-import 'package:usermedications/model/user.dart';
+import 'package:usermedications/controller/provider/medication_provider.dart';
+import 'package:usermedications/controller/provider/user_provider.dart';
 import 'package:usermedications/pages/home_page.dart';
 import 'package:usermedications/pages/register_page.dart';
+import 'package:usermedications/utils/form_utils.dart';
 import 'package:usermedications/utils/nav_utils.dart';
+import 'package:usermedications/utils/system_colors.dart';
 import 'package:usermedications/utils/utils.dart';
 
 class LoginPage extends StatefulWidget {
@@ -28,27 +29,18 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
 
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarIconBrightness: Brightness.dark,
-      statusBarColor: Colors.white,
-      systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
+    SystemColors.authColors();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          width: double.infinity,
-          child: Padding(
-            padding: EdgeInsets.only(
-              top: 80,
-              bottom: 30,
-            ),
-            child: Column(
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: double.infinity,
+        child: ListView(
+          children: [
+            Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -57,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
                 makeFooter(),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -66,13 +58,19 @@ class _LoginPageState extends State<LoginPage> {
   Widget makeHeader() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 35),
+      padding: EdgeInsets.only(left: 35, right: 35, top: 40),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          FadeAnimation(1, MedkitIcon(iconSize: 96)),
-          SizedBox(height: 40),
+          FadeAnimation(
+            1,
+            Hero(
+              tag: 'medkit-logo',
+              child: MedkitIcon(iconSize: 96),
+            ),
+          ),
+          SizedBox(height: 20),
           FadeAnimation(
             1.2,
             CustomText(
@@ -81,12 +79,15 @@ class _LoginPageState extends State<LoginPage> {
               isBold: true,
             ),
           ),
-          FadeAnimation(
-            1.4,
-            CustomText(
-              text: "Entre e usufrua de nossos serviços!",
-              color: Colors.grey[500],
-              fontSize: 12,
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: FadeAnimation(
+              1.4,
+              CustomText(
+                text: "Entre e usufrua de nossos serviços!",
+                color: Colors.grey[500],
+                fontSize: 12,
+              ),
             ),
           ),
         ],
@@ -95,115 +96,24 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget makeLoginForm() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 25),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-              BoxShadow(
-                color: Color.fromRGBO(50, 205, 100, .6),
-                blurRadius: 20,
-                offset: Offset(2, 10),
-              )
-            ],
-          ),
-          child: Form(
-            key: formKey,
-            child: Column(
-              children: [
-                FadeAnimation(
-                  1.6,
-                  makeInput(
-                    label: "Nome de Usuário",
-                    controller: userController,
-                    validateFun: validateUser,
-                  ),
-                ),
-                FadeAnimation(
-                  1.8,
-                  makeInput(
-                    label: "Senha",
-                    obscureText: true,
-                    controller: pswdController,
-                    validateFun: validatePswd,
-                  ),
-                ),
-                FadeAnimation(1.8, GreyLine()),
-                FadeAnimation(
-                  2,
-                  FormButton(
-                    label: "Entrar",
-                    onTap: login,
-                  ),
-                ),
-              ],
-            ),
-          ),
+    return FadeAnimation(
+      1.6,
+      CustomForm(
+        this.formKey,
+        FormUtils.makeLoginFormOptions(getLoginFormControllers()),
+        FormUtils.makeSubmitProp(
+          submitFunction: login,
+          submitLabel: 'Entrar',
         ),
-      ],
-    );
-  }
-
-  void login() async {
-    if (formKey.currentState.validate()) {
-      showLoadingDialog(context);
-
-      String user = userController.text;
-      String pswd = pswdController.text;
-
-      var result = await Facade().login(user, pswd);
-
-      closeDialog(context);
-
-      if (result.runtimeType == String) {
-        if (result == 'offline') {
-          showOfflineDialog(context);
-        } else {
-          showMessageDialog(
-            context,
-            "Há algo de errado...",
-            result,
-            [
-              makeActionObject(
-                'Ok',
-                true,
-                () => closeDialog(context),
-                Icon(Icons.close),
-              ),
-            ],
-          );
-        }
-      } else {
-        NavUtils.push(context: context, page: HomePage(), replace: true);
-      }
-    }
-  }
-
-  Widget makeInput({
-    label,
-    obscureText = false,
-    validateFun,
-    withBorder = true,
-    controller,
-  }) {
-    return CustomFormField(
-      label: label,
-      obscureText: obscureText,
-      validateFun: validateFun,
-      withBorder: withBorder,
-      controller: controller,
+      ),
     );
   }
 
   Widget makeFooter() {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 5),
+      padding: EdgeInsets.symmetric(vertical: 25),
       child: FadeAnimation(
-        2.2,
+        1.8,
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -230,25 +140,66 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  String validateUser(String text) {
-    String result;
+  List<TextEditingController> getLoginFormControllers() => [
+        userController,
+        pswdController,
+      ];
 
-    if (text.isEmpty) {
-      result = 'Você precisa inserir seu usuário!';
+  void login() async {
+    if (formKey.currentState.validate()) {
+      showLoadingDialog(context);
+
+      String user = userController.text;
+      String pswd = pswdController.text;
+
+      var data = await Facade().login(user, pswd);
+
+      if (data.runtimeType == String) {
+        closeDialog(context);
+
+        if (data == 'offline') {
+          showOfflineDialog(context);
+        } else {
+          showMessageDialog(
+            context,
+            "Há algo de errado...",
+            data,
+            null,
+          );
+        }
+      } else {
+        UserProvider userProvider = new UserProvider();
+
+        bool result = await userProvider.setUser(data);
+
+        closeDialog(context);
+
+        if (!result)
+          showMessageDialog(
+            context,
+            'Há algo de errado...',
+            'Houve um erro ao salvar seus dados básicos. Infelizmente não é possível prosseguir. Por favor, contate o suporte.',
+            null,
+          );
+        else {
+          MedicationProvider medicationProvider = new MedicationProvider();
+
+          var pageWithUserProvider = buildPageWithProvider(
+            bloc: userProvider,
+            page: HomePage(),
+          );
+          var pageWithMedicationProvider = buildPageWithProvider(
+            bloc: medicationProvider,
+            page: pageWithUserProvider,
+          );
+
+          NavUtils.push(
+            context: context,
+            page: pageWithMedicationProvider,
+            replace: true,
+          );
+        }
+      }
     }
-
-    return result;
-  }
-
-  String validatePswd(String text) {
-    String result;
-
-    if (text.isEmpty) {
-      result = 'Você precisa inserir sua senha!';
-    } else if (text.length < 6) {
-      result = 'Senha inválida!';
-    }
-
-    return result;
   }
 }

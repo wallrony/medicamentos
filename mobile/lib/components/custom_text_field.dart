@@ -5,8 +5,15 @@ class CustomTextField extends StatelessWidget {
   final controller;
   final obscureText;
   final validateFun;
+  final String type;
 
-  CustomTextField({this.label, this.controller, this.obscureText, this.validateFun});
+  CustomTextField({
+    this.label,
+    this.controller,
+    this.obscureText,
+    this.validateFun,
+    this.type,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +29,8 @@ class CustomTextField extends StatelessWidget {
         ),
       ),
       obscureText: obscureText,
+      keyboardType:
+          type == 'number' ? TextInputType.number : TextInputType.text,
     );
   }
 }

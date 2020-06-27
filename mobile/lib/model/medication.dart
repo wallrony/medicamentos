@@ -20,14 +20,16 @@ class Medication {
     this._id = object['id'];
     this._name = object['name'];
     this._description = object['description'];
-    this._value = object['value'];
+    this._value = double.parse(object['value'].toString());
   }
 
-  Medication.toMap() {
+  Map<String, dynamic> toMap({bool withId = false}) {
     final Map<String, dynamic> map = new Map<String, dynamic>();
-    map['id'] = this._id;
+    if(withId) map['id'] = this._id;
     map['name'] = this._name;
     map['description'] = this._description;
-    map['value'] = this._value;
+    map['value'] = this._value.toString();
+
+    return map;
   }
 }

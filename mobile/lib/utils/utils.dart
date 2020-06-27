@@ -5,6 +5,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:usermedications/components/custom_button.dart';
+import 'package:usermedications/components/custom_dialog_pop_button.dart';
 import 'package:usermedications/components/custom_text.dart';
 
 getAppBarTheme() {
@@ -53,55 +54,58 @@ showLoadingDialog(BuildContext context) {
 showMessageDialog(BuildContext context, String title, String description,
     List<Map<String, dynamic>> actions) {
   showDialog(
-    context: context,
-    barrierDismissible: false,
-    child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-      child: AlertDialog(
-        contentPadding: EdgeInsets.all(0),
-        backgroundColor: Colors.transparent,
-        content: Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-          decoration: new BoxDecoration(
-            shape: BoxShape.rectangle,
-            color: Colors.white,
-            borderRadius: new BorderRadius.all(new Radius.circular(32.0)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomText(
-                text: title,
-                color: Colors.black,
-                fontSize: 24,
-                isBold: true,
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 15),
-              CustomText(
-                text: description,
-                color: Colors.black87,
-                fontSize: 15,
-                textAlign: TextAlign.left,
-              ),
-              SizedBox(height: 30),
-              ...actions.map(
-                (action) => Container(
-                  width: double.maxFinite,
-                  child: CustomIconButton(
-                    label: action['label'],
-                    onPressed: action['onPressed'],
-                    reverseColors: action['reverseColors'],
-                    icon: action['icon'],
-                  ),
+      context: context,
+      barrierDismissible: false,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: AlertDialog(
+          contentPadding: EdgeInsets.all(0),
+          backgroundColor: Colors.transparent,
+          content: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            decoration: new BoxDecoration(
+              shape: BoxShape.rectangle,
+              color: Colors.white,
+              borderRadius: new BorderRadius.all(new Radius.circular(32.0)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomText(
+                  text: title,
+                  color: Colors.black,
+                  fontSize: 24,
+                  isBold: true,
+                  textAlign: TextAlign.center,
                 ),
-              )
-            ],
+                SizedBox(height: 15),
+                CustomText(
+                  text: description,
+                  color: Colors.black87,
+                  fontSize: 15,
+                  textAlign: TextAlign.left,
+                ),
+                SizedBox(height: 30),
+                actions == null
+                  ? CustomDialogPopButton()
+                  : actions.map(
+                      (action) =>
+                      Container(
+                        width: double.maxFinite,
+                        child: CustomIconButton(
+                          label: action['label'],
+                          onPressed: action['onPressed'],
+                          reverseColors: action['reverseColors'],
+                          icon: action['icon'],
+                        ),
+                      ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    )
+      )
   );
 }
 
@@ -134,21 +138,13 @@ showOfflineDialog(BuildContext context) {
               ),
               SizedBox(height: 15),
               CustomText(
-                text: "Vocẽ precisa estar conectado à internet para realizar qualquer operação!",
-                color: Colors.black87,
-                fontSize: 16,
-                textAlign: TextAlign.left
+                  text: "Vocẽ precisa estar conectado à internet para realizar qualquer operação!",
+                  color: Colors.black87,
+                  fontSize: 16,
+                  textAlign: TextAlign.left
               ),
               SizedBox(height: 30),
-              Container(
-                width: double.maxFinite,
-                child: CustomIconButton(
-                  label: 'Ok',
-                  onPressed: () => closeDialog(context),
-                  reverseColors: true,
-                  icon: Icon(Icons.close),
-                ),
-              ),
+              CustomDialogPopButton(),
             ],
           ),
         ),
@@ -157,12 +153,10 @@ showOfflineDialog(BuildContext context) {
   );
 }
 
-makeActionObject(
-  String label,
-  bool reverseColors,
-  Function onPressed,
-  Icon icon,
-) {
+makeActionObject(String label,
+    bool reverseColors,
+    Function onPressed,
+    Icon icon,) {
   final action = {
     'label': label,
     'reverseColors': reverseColors,
@@ -183,4 +177,21 @@ buildPageWithProvider<T extends ChangeNotifier>(
     value: bloc,
     child: page,
   );
+}
+
+treatName(String name) {
+  name = name.toLowerCase();
+  List<String> splittedName = name.split(' ');
+
+  for (var i = 0; i < splittedName.length; i++) {
+    String namePart = splittedName[i];
+
+    namePart = "${namePart[0].toUpperCase()}${namePart.substring(1)}";
+
+    print("NamePart: $namePart");
+
+    splittedName[i] = namePart;
+  }
+
+  return splittedName.join(' ');
 }
