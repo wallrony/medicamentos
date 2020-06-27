@@ -36,7 +36,7 @@ class AuthController {
     if(!request.headers['authorization']) {
       return response.status(401).json(errorTokenRequired);
     }
-  
+
     const token = request.headers['authorization'].replace('Token ', '');
 
     if(token === 'Token') {

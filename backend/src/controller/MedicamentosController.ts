@@ -18,11 +18,12 @@ class MedicamentosController {
   }
 
   async add(request: Request, response: Response) {
-    const { name, description, value, user_id } = request.body;
+    const { name, description, value } = request.body;
+    const { user_id } = request.query;
 
-    if (!name || !description || !value || !user_id ||
-      !String(name).length || !String(description).length ||
-      !String(value).length || !String(user_id).length
+    if (!name || !value || !user_id ||
+      !String(name).length || !String(value).length ||
+      !String(user_id).length
     ) {
       return response.status(400).send(errorEmptyValue);
     }
