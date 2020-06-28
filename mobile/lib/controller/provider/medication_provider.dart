@@ -30,6 +30,7 @@ class MedicationProvider extends BaseProvider {
 
     if (medicationList.runtimeType != String) {
       medicationList.sort(_sortMedicationById);
+      _medications = medicationList;
     }
 
     await Future.delayed(Duration(seconds: 3));
@@ -39,7 +40,7 @@ class MedicationProvider extends BaseProvider {
     notifyListeners();
   }
 
-  _sortMedicationById(Medication a, Medication b) {
+  int _sortMedicationById(Medication a, Medication b) {
     if(a.id > b.id) {
       return 1;
     }

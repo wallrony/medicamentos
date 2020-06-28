@@ -344,10 +344,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     showLoadingDialog(context);
 
-    User user = Provider.of<UserProvider>(context).user;
+    List<String> prefData = await UserService().getUserPrefs();
 
-    await Provider.of<MedicationProvider>(context)
-        .deleteMedication(user.token, user.id, medId);
+    await Provider.of<MedicationProvider>(context, listen: false)
+        .deleteMedication(prefData[0], int.parse(prefData[1]), medId);
 
     closeDialog(context);
   }
