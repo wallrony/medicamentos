@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:usermedications/pages/login_page.dart';
-import 'package:usermedications/pages/splash_page.dart';
-import 'package:usermedications/utils/utils.dart';
+import 'package:usermedications/ui/pages/splash_page.dart';
+import 'package:usermedications/core/utils/utils.dart';
 
 void main() {
   runApp(MyApp());
