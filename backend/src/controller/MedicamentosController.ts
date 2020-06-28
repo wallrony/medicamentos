@@ -58,9 +58,9 @@ class MedicamentosController {
     const { name, description, value } = request.body;
     const { id } = request.params;
 
-    if (!id || !name || !description || !value ||
+    if (!id || !name || !value ||
       !String(id).length || !String(name).length ||
-      !String(description).length || !String(value).length
+      !String(value).length
     ) {
       return response.status(400).send(errorEmptyValue);
     }
