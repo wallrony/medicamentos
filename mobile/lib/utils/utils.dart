@@ -54,58 +54,111 @@ showLoadingDialog(BuildContext context) {
 showMessageDialog(BuildContext context, String title, String description,
     List<Map<String, dynamic>> actions) {
   showDialog(
-      context: context,
-      barrierDismissible: false,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: AlertDialog(
-          contentPadding: EdgeInsets.all(0),
-          backgroundColor: Colors.transparent,
-          content: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-            decoration: new BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: Colors.white,
-              borderRadius: new BorderRadius.all(new Radius.circular(32.0)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CustomText(
-                  text: title,
-                  color: Colors.black,
-                  fontSize: 24,
-                  isBold: true,
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 15),
-                CustomText(
-                  text: description,
-                  color: Colors.black87,
-                  fontSize: 15,
-                  textAlign: TextAlign.left,
-                ),
-                SizedBox(height: 30),
-                actions == null
+    context: context,
+    barrierDismissible: false,
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+      child: AlertDialog(
+        contentPadding: EdgeInsets.all(0),
+        backgroundColor: Colors.transparent,
+        content: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+          decoration: new BoxDecoration(
+            shape: BoxShape.rectangle,
+            color: Colors.white,
+            borderRadius: new BorderRadius.all(new Radius.circular(8.0)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomText(
+                text: title,
+                color: Colors.black,
+                fontSize: 24,
+                isBold: true,
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 15),
+              CustomText(
+                text: description,
+                color: Colors.black87,
+                fontSize: 15,
+                textAlign: TextAlign.left,
+              ),
+              SizedBox(height: 30),
+              actions == null
                   ? CustomDialogPopButton()
-                  : actions.map(
-                      (action) =>
-                      Container(
-                        width: double.maxFinite,
-                        child: CustomIconButton(
-                          label: action['label'],
-                          onPressed: action['onPressed'],
-                          reverseColors: action['reverseColors'],
-                          icon: action['icon'],
+                  : Column(
+                      children: [
+                        ...actions.map(
+                          (action) => Container(
+                            width: double.maxFinite,
+                            child: CustomIconButton(
+                              label: action['label'],
+                              onPressed: action['onPressed'],
+                              reverseColors: action['reverseColors'],
+                              icon: action['icon'],
+                            ),
+                          ),
                         ),
-                      ),
-                ),
-              ],
-            ),
+                      ],
+                    ),
+            ],
           ),
         ),
-      )
+      ),
+    ),
+  );
+}
+
+showCustomDialog(BuildContext context, Widget title, Widget content,
+    List<Map<String, dynamic>> actions) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+      child: AlertDialog(
+        contentPadding: EdgeInsets.all(0),
+        backgroundColor: Colors.transparent,
+        content: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+          decoration: new BoxDecoration(
+            shape: BoxShape.rectangle,
+            color: Colors.white,
+            borderRadius: new BorderRadius.all(new Radius.circular(8.0)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              title,
+              SizedBox(height: 10),
+              content != null ? content : Container(),
+              content != null ? SizedBox(height: 20) : Container(),
+              actions == null
+                  ? CustomDialogPopButton()
+                  : Column(
+                      children: [
+                        ...actions.map(
+                          (action) => Container(
+                            width: double.maxFinite,
+                            child: CustomIconButton(
+                              label: action['label'],
+                              onPressed: action['onPressed'],
+                              reverseColors: action['reverseColors'],
+                              icon: action['icon'],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+            ],
+          ),
+        ),
+      ),
+    ),
   );
 }
 
@@ -124,7 +177,7 @@ showOfflineDialog(BuildContext context) {
           decoration: new BoxDecoration(
             shape: BoxShape.rectangle,
             color: Colors.white,
-            borderRadius: new BorderRadius.all(new Radius.circular(32.0)),
+            borderRadius: new BorderRadius.all(new Radius.circular(8.0)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -138,10 +191,11 @@ showOfflineDialog(BuildContext context) {
               ),
               SizedBox(height: 15),
               CustomText(
-                  text: "Vocẽ precisa estar conectado à internet para realizar qualquer operação!",
-                  color: Colors.black87,
-                  fontSize: 16,
-                  textAlign: TextAlign.left
+                text:
+                    "Vocẽ precisa estar conectado à internet para realizar qualquer operação!",
+                color: Colors.black87,
+                fontSize: 16,
+                textAlign: TextAlign.left,
               ),
               SizedBox(height: 30),
               CustomDialogPopButton(),
@@ -153,10 +207,12 @@ showOfflineDialog(BuildContext context) {
   );
 }
 
-makeActionObject(String label,
-    bool reverseColors,
-    Function onPressed,
-    Icon icon,) {
+makeActionObject(
+  String label,
+  bool reverseColors,
+  Function onPressed,
+  Icon icon,
+) {
   final action = {
     'label': label,
     'reverseColors': reverseColors,

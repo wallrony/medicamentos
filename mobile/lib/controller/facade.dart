@@ -2,6 +2,7 @@ import 'package:usermedications/api/auth_api.dart';
 import 'package:usermedications/api/medications_api.dart';
 import 'package:usermedications/api/user_api.dart';
 import 'package:usermedications/controller/preferences/pref.dart';
+import 'package:usermedications/model/medication.dart';
 import 'package:usermedications/model/user.dart';
 
 class Facade {
@@ -73,11 +74,9 @@ class Facade {
   updateMedication(
     String token,
     int id,
-    String name,
-    String description,
-    double value,
+    Medication medication
   ) async =>
-      await _medApi.update(token, id, name, description, value);
+      await _medApi.update(token, id, medication);
 
   delete(String token, int id) async => await _medApi.delete(token, id);
 

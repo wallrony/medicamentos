@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:usermedications/animation/FadeAnimation.dart';
 import 'package:usermedications/components/custom_text.dart';
+import 'package:usermedications/components/medication_item.dart';
+import 'package:usermedications/components/medication_list.dart';
 import 'package:usermedications/components/medkit_icon.dart';
 import 'package:usermedications/controller/provider/medication_provider.dart';
 import 'package:usermedications/controller/provider/user_provider.dart';
+import 'package:usermedications/model/medication.dart';
 import 'package:usermedications/model/user.dart';
 import 'package:usermedications/pages/add_medication_page.dart';
 import 'package:usermedications/pages/login_page.dart';
@@ -23,6 +26,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int _selectedIndex = 0;
 
   bool _menuExtended = false;
+  bool _refreshMedications = false;
+  bool _medicationEdited = false;
+
   AnimationController _menuAnimationController;
 
   @override
@@ -34,26 +40,52 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       duration: Duration(milliseconds: 300),
     );
 
-    getMedications();
+    _getData();
 
     SystemColors.homeColors();
   }
 
-  getMedications() async {
-    print("pegando medicamentos...");
+  _getData() async {
+    List<String> prefData = await UserService().getUserPrefs();
 
-    MedicationProvider medProvider =
-        Provider.of<MedicationProvider>(context, listen: false);
+    Provider.of<UserProvider>(context).fetchUser(
+      prefData[0],
+      int.parse(prefData[1]),
+    );
+
+    MedicationProvider medProvider = Provider.of<MedicationProvider>(
+      context,
+      listen: false,
+    );
+
+    await medProvider.fetchMedications(prefData[0], int.parse(prefData[1]));
+
+    final bool haveMedication =
+        medProvider.medications != null && medProvider.medications.isNotEmpty;
+
+    SystemColors.homeColors(haveMedication: haveMedication);
+  }
+
+  _refreshMedicationList() async {
+    if(_medicationEdited) {
+      closeDialog(context);
+      setState(() => _medicationEdited = false);
+    }
 
     List<String> prefData = await UserService().getUserPrefs();
 
+    MedicationProvider medProvider;
     medProvider = Provider.of<MedicationProvider>(context, listen: false);
 
-    await medProvider.fetchMedications(prefData[0], int.parse(prefData[1]));
+    await medProvider.refreshMedications(prefData[0], int.parse(prefData[1]));
+
+    _setRefreshList(false);
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_refreshMedications) _refreshMedicationList();
+
     return Scaffold(
       body: Container(
         child: Stack(
@@ -115,7 +147,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               ),
                               child: CustomText(
                                 text:
-                                "Adicione seus medicamentos e tenha um controle melhor da sua saúde!",
+                                    "Adicione seus medicamentos e tenha um controle melhor da sua saúde!",
                                 color: Colors.grey[700],
                               ),
                             ),
@@ -128,7 +160,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
             ),
             FadeAnimation(
-              1.6,
+              1,
               Row(
                 children: [
                   NavigationRail(
@@ -151,10 +183,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     minWidth: 50,
                     destinations: [
                       NavigationRailDestination(
-                        icon: Icon(Icons.home, size: 24,),
+                        icon: Icon(
+                          Icons.home,
+                          size: 24,
+                        ),
                         label: CustomText(text: "Medicamentos"),
                         selectedIcon: Icon(
-                          Icons.home, size: 30,
+                          Icons.home,
+                          size: 30,
                           color: Color.fromRGBO(50, 205, 100, .8),
                         ),
                       ),
@@ -162,7 +198,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         icon: Icon(Icons.person_pin, size: 24),
                         label: CustomText(text: "Perfil"),
                         selectedIcon: Icon(
-                          Icons.person_pin, size: 30,
+                          Icons.person_pin,
+                          size: 30,
                           color: Color.fromRGBO(50, 205, 100, .8),
                         ),
                       ),
@@ -192,9 +229,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     onDestinationSelected: (index) {
                       setState(() {
                         _selectedIndex = index;
-                        print("setted");
-
-                        getMedications();
                       });
                     },
                   ),
@@ -220,8 +254,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ? Colors.white
                             : Color.fromRGBO(50, 205, 100, 1),
                         borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(48),
-                          topRight: Radius.circular(48),
+                          topLeft: Radius.circular(24),
+                          topRight: Radius.circular(24),
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -232,8 +266,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                       child: Container(
                         width: double.maxFinite,
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                        child: medicationList(provider),
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        child: MedicationList(
+                          medProvider: provider,
+                          redirectToAddMedication: _redirectToAddMedication,
+                          onItemTap: _onMedicationTap,
+                        ),
                       ),
                     );
                   },
@@ -246,6 +284,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  _setRefreshList(bool value, { bool edited = false }) => setState(() {
+    _refreshMedications = value;
+    _medicationEdited = edited;
+  });
+
   _onMenuTap() {
     if (_menuExtended)
       _menuAnimationController.reverse();
@@ -254,73 +297,66 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     setState(() => _menuExtended = !_menuExtended);
   }
 
-  medicationList(MedicationProvider medProvider) {
-    if (medProvider.running) {
-      return Center(
-        child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),),
-      );
-    } else if (medProvider.medications == null ||
-        medProvider.medications.isEmpty)
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          FadeAnimation(
-            1.8,
-            Container(
-              child: CustomText(
-                text: "Não encontrei nenhum medicamento...",
-                fontSize: 14,
-                color: Colors.white,
-              ),
+  _onMedicationTap(Medication medication) {
+    showCustomDialog(
+      context,
+      CustomText(
+        text: medication.name,
+        fontSize: 24,
+        isBold: true,
+      ),
+      medication.description.isNotEmpty ? CustomText(
+        text: medication.description,
+        textAlign: TextAlign.left,
+      ) : null,
+      [
+        makeActionObject(
+          'Editar',
+          true,
+          () => NavUtils.push(
+            context: context,
+            page: AddMedicationPage(
+              setRefreshList: _setRefreshList,
+              edit: true,
+              medication: medication,
             ),
           ),
-          FadeAnimation(
-            2,
-            FloatingActionButton(
-              backgroundColor: Colors.white,
-              child: Icon(
-                Icons.add,
-                color: Color.fromRGBO(50, 205, 100, 1),
-              ),
-              onPressed: () => redirectToAddMedication(),
-            ),
-          ),
-        ],
-      );
-
-    return Column(
-      children: [
-          Flexible(
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: medProvider.medications.length,
-              itemBuilder: (context, index) => Container(
-                child: CustomText(text: medProvider.medications[index].name),
-                width: 150,
-                color: Colors.red,
-                margin: EdgeInsets.all(5),
-              ),
-            ),
-          ),
-        FadeAnimation(
-          2,
-          FloatingActionButton(
-            backgroundColor: Colors.white,
-            child: Icon(
-              Icons.add,
-              color: Color.fromRGBO(50, 205, 100, 1),
-            ),
-            onPressed: () => NavUtils.push(context: context, page: AddMedicationPage()),
-          ),
+          Icon(Icons.edit),
+        ),
+        makeActionObject(
+          'Deletar',
+          true,
+          () => deleteMedication(medication.id),
+          Icon(Icons.delete_forever),
+        ),
+        makeActionObject(
+          'Fechar',
+          true,
+          () => closeDialog(context),
+          Icon(Icons.close),
         ),
       ],
     );
   }
 
-  void redirectToAddMedication() {
+  deleteMedication(int medId) async {
+    closeDialog(context);
 
+    showLoadingDialog(context);
+
+    User user = Provider.of<UserProvider>(context).user;
+
+    await Provider.of<MedicationProvider>(context)
+        .deleteMedication(user.token, user.id, medId);
+
+    closeDialog(context);
+  }
+
+  void _redirectToAddMedication() {
+    NavUtils.push(
+      context: context,
+      page: AddMedicationPage(setRefreshList: _setRefreshList),
+    );
   }
 
   void _onTapLogout() async {

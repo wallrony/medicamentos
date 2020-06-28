@@ -14,6 +14,12 @@ import 'package:usermedications/utils/system_colors.dart';
 import 'package:usermedications/utils/utils.dart';
 
 class AddMedicationPage extends StatefulWidget {
+  final Function setRefreshList;
+  final bool edit;
+  final Medication medication;
+
+  AddMedicationPage({this.setRefreshList, this.edit = false, this.medication});
+
   @override
   _AddMedicationPageState createState() => _AddMedicationPageState();
 }
@@ -25,12 +31,21 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController valueController = TextEditingController();
 
+  Medication get medication => widget.medication;
+
+  bool get edit => widget.edit;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     SystemColors.addMedicationColors();
+
+    if (widget.medication != null) {
+      nameController.text = medication.name;
+      descriptionController.text = medication.description;
+      valueController.text = medication.value.toString();
+    }
   }
 
   @override
@@ -68,9 +83,9 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
     return FadeAnimation(
       1,
       Padding(
-        padding: EdgeInsets.symmetric(vertical: 25, horizontal: 15),
+        padding: EdgeInsets.symmetric(vertical: 25, horizontal: 20),
         child: CustomText(
-          text: "Cadastrar Medicamento",
+          text: edit ? "Editar Medicamento" : "Cadastrar Medicamento",
           fontSize: 36,
           isBold: true,
         ),
@@ -87,8 +102,8 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
           this.formKey,
           FormUtils.makeMedicationFormOptions(getFormControllers()),
           FormUtils.makeSubmitProp(
-            submitFunction: _addMedication,
-            submitLabel: 'Adicionar',
+            submitFunction: edit ? _editMedication : _addMedication,
+            submitLabel: edit ? 'Editar' : 'Adicionar',
           ),
         ),
       ),
@@ -115,7 +130,11 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
 
       if (userData == null) return;
 
-      var data = await Facade().addMedication(userData[0], int.parse(userData[1]), medication);
+      var data = await Facade().addMedication(
+        userData[0],
+        int.parse(userData[1]),
+        medication,
+      );
 
       closeDialog(context);
 
@@ -129,12 +148,65 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
           context,
           'Sucesso!',
           'Medicamento cadastrado com sucesso!',
-          null,
+          [],
         );
 
-        loadMedications();
+        widget.setRefreshList(true, edited: true);
 
-        NavUtils.pop(context);
+        Future.delayed(Duration(seconds: 2), () {
+          NavUtils.pop(context);
+          NavUtils.pop(context);
+        });
+      }
+    }
+  }
+
+  void _editMedication() async {
+    if (formKey.currentState.validate()) {
+      showLoadingDialog(context);
+
+      String name = nameController.text;
+      String description = descriptionController.text;
+      double value = double.parse(valueController.text);
+
+      Medication medicationEdited = Medication(
+        medication.id,
+        name,
+        description,
+        value,
+      );
+
+      var userData = await _getUserData();
+
+      if (userData == null) return;
+
+      var data = await Facade().updateMedication(
+        userData[0],
+        int.parse(userData[1]),
+        medicationEdited,
+      );
+
+      closeDialog(context);
+
+      if (data.runtimeType == String) {
+        if (data == 'offline')
+          showOfflineDialog(context);
+        else
+          showMessageDialog(context, 'Há algo de errado..', data, null);
+      } else if (data.runtimeType == bool && data) {
+        showMessageDialog(
+          context,
+          'Sucesso!',
+          'Medicamento atualizado com sucesso!',
+          [],
+        );
+
+        widget.setRefreshList(true);
+
+        Future.delayed(Duration(seconds: 2), () {
+          NavUtils.pop(context);
+          NavUtils.pop(context);
+        });
       }
     }
   }
@@ -154,7 +226,8 @@ class _AddMedicationPageState extends State<AddMedicationPage> {
 
     if (userData.isEmpty) return;
 
-    await Provider.of<MedicationProvider>(context, listen: false).fetchMedications(
+    await Provider.of<MedicationProvider>(context, listen: false)
+        .fetchMedications(
       userData[0],
       int.parse(userData[1]),
     );

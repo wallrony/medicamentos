@@ -11,12 +11,14 @@ class SystemColors {
     );
   }
 
-  static homeColors() {
+  static homeColors({bool haveMedication = false}) {
     _setColors(
       statusBarColor: Colors.white,
-      navigationBarColor: Color.fromRGBO(50, 205, 100, 1),
+      navigationBarColor:
+          haveMedication ? Colors.white : Color.fromRGBO(50, 205, 100, 1),
       statusBarIconBrightness: Brightness.dark,
-      navigationBarIconBrightness: Brightness.light,
+      navigationBarIconBrightness:
+          haveMedication ? Brightness.dark : Brightness.light,
     );
   }
 

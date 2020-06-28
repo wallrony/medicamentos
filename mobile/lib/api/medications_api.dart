@@ -11,8 +11,6 @@ class MedicationApi extends BaseApi {
 
     var response;
 
-    print(token);
-
     try {
       response = await http.get(
         "$apiUrl/medicamentos?user_id=$userId",
@@ -25,8 +23,6 @@ class MedicationApi extends BaseApi {
       );
 
       response = List<Medication>();
-
-      print(mapListResponse);
 
       if (mapListResponse.isNotEmpty)
         for (final medication in mapListResponse)
@@ -93,20 +89,15 @@ class MedicationApi extends BaseApi {
     return response;
   }
 
-  update(token, id, name, description, value) async {
+  update(String token, int id, Medication medication) async {
     if (!(await isOnline())) return 'offline';
 
-    var response,
-        body = {
-      'name': name,
-      'description': description,
-      'value': value,
-    };
+    var response, body = medication.toMap(withId: true);
 
     try {
       response = await http.put(
         "$apiUrl/medicamentos/$id",
-        body: body,
+        body: json.encode(body),
         headers: getHeaders(token: token),
       );
 
