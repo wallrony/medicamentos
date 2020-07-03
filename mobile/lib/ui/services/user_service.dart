@@ -24,17 +24,7 @@ class UserService {
     Widget page;
 
     if (result) {
-      page = MultiProvider(
-        providers: [
-          ChangeNotifierProvider(
-            create: (context) => UserProvider(),
-          ),
-          ChangeNotifierProvider(
-            create: (context) => MedicationProvider(),
-          )
-        ],
-        child: DashboardPage(),
-      );
+      page = DashboardPage();
     } else {
       page = LoginPage();
     }

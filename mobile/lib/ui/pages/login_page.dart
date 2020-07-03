@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:usermedications/ui/animation/FadeAnimation.dart';
 import 'package:usermedications/ui/components/custom_form.dart';
 import 'package:usermedications/ui/components/custom_text.dart';
@@ -180,24 +181,12 @@ class _LoginPageState extends State<LoginPage> {
             'Houve um erro ao salvar seus dados básicos. Infelizmente não é possível prosseguir. Por favor, contate o suporte.',
             null,
           );
-        else {
-          MedicationProvider medicationProvider = new MedicationProvider();
-
-          var pageWithUserProvider = buildPageWithProvider(
-            bloc: userProvider,
-            page: DashboardPage(),
-          );
-          var pageWithMedicationProvider = buildPageWithProvider(
-            bloc: medicationProvider,
-            page: pageWithUserProvider,
-          );
-
+        else
           NavUtils.push(
             context: context,
-            page: pageWithMedicationProvider,
+            page: DashboardPage(),
             replace: true,
           );
-        }
       }
     }
   }
